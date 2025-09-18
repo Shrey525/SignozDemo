@@ -1,5 +1,6 @@
 package com.example.test5000.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,8 +33,9 @@ import androidx.navigation.NavController
 import com.example.demo1.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import timber.log.Timber
-
 
 @Composable
 fun LogScreen(navController: NavController) {
@@ -50,14 +52,15 @@ fun LogScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
+            .padding(16.dp)
+            .background(colorResource(id = R.color.white)),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "This is the Log Screen",
             modifier = Modifier.padding(bottom = 16.dp),
-            fontSize = 30.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = colorResource(id = R.color.black)
         )
@@ -152,4 +155,10 @@ fun DropdownMenuBox(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun LogScreenPreview(){
+    LogScreen(navController = rememberNavController())
 }
