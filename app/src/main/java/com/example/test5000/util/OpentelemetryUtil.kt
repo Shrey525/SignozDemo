@@ -13,9 +13,10 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import io.opentelemetry.sdk.logs.SdkLoggerProvider
-import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor
+import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter
 import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter
 import io.opentelemetry.api.logs.Logger
+import io.opentelemetry.sdk.logs.export.SimpleLogRecordProcessor
 
 
 class OpenTelemetryUtil {
@@ -56,8 +57,12 @@ class OpenTelemetryUtil {
                 .addHeader("signoz-ingestion-key", "d793128e-5bd7-4121-9a45-f92c51c80600")
                 .build()
 
+            val consoleExporter = SystemOutLogRecordExporter.create()
+
+            // Use Simple processor (immediate export) instead of batching
             loggerProvider = SdkLoggerProvider.builder()
-                .addLogRecordProcessor(BatchLogRecordProcessor.builder(logExporter).build())
+                .addLogRecordProcessor(SimpleLogRecordProcessor.create(logExporter))
+                .addLogRecordProcessor(SimpleLogRecordProcessor.create(consoleExporter)) // print to console
                 .setResource(otelResource)
                 .build()
 

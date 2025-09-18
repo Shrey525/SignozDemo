@@ -58,6 +58,17 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    //Timber
+    implementation("com.jakewharton.timber:timber:5.0.1")
+
+    //Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.8.0")
+
+    //OkHttp
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.31.0"))
 
     // Core (stable)
