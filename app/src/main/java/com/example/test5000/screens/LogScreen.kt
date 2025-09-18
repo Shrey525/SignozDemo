@@ -1,16 +1,21 @@
 package com.example.test5000.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -33,13 +38,14 @@ import androidx.navigation.NavController
 import com.example.demo1.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import io.opentelemetry.sdk.resources.Resource
 import timber.log.Timber
 
 @Composable
 fun LogScreen(navController: NavController) {
-
     val logLevels = listOf("Info", "Debug", "Error")
     val eventTypes = listOf("Button Clicked", "API Called", "Screen Loaded", "User Action")
     val messages = listOf("Success", "Failed", "Started")
@@ -48,67 +54,77 @@ fun LogScreen(navController: NavController) {
     var selectedEvent by remember { mutableStateOf(eventTypes[0]) }
     var selectedMessage by remember { mutableStateOf(messages[0]) }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .background(colorResource(id = R.color.white)),
-        verticalArrangement = Arrangement.Center,
+            .padding(24.dp)
+            .background(colorResource(id = R.color.white)),        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "This is the Log Screen",
-            modifier = Modifier.padding(bottom = 16.dp),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = colorResource(id = R.color.black)
+            "Log Event",
+            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 32.dp)
         )
 
-
-        Spacer(modifier = Modifier.height(50.dp))
-
-        // Row with 3 dropdowns
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .height(IntrinsicSize.Min)
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             DropdownMenuBox(
                 options = logLevels,
                 selected = selectedLogLevel,
-                onSelected = { selectedLogLevel = it }
+                onSelectedChange = { selectedLogLevel = it },
+                modifier = Modifier.weight(0.5f)
+                    .padding(horizontal = 4.dp)
+                    .fillMaxHeight()
             )
-
             DropdownMenuBox(
                 options = eventTypes,
                 selected = selectedEvent,
-                onSelected = { selectedEvent = it }
+                onSelectedChange = { selectedEvent = it },
+                modifier = Modifier.weight(1f)
+                    .padding(horizontal = 4.dp)
+                    .fillMaxHeight()
             )
 
             DropdownMenuBox(
                 options = messages,
                 selected = selectedMessage,
-                onSelected = { selectedMessage = it }
+                onSelectedChange = { selectedMessage = it },
+                modifier = Modifier.weight(0.7f)
+                    .padding(horizontal = 4.dp)
+                    .fillMaxHeight()
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        // Button row
-        Button(onClick = {
-            val logText = "$selectedEvent - $selectedMessage"
-            when (selectedLogLevel) {
-                "Info" -> Timber.i(logText)
-                "Debug" -> Timber.d(logText)
-                "Error" -> Timber.e(logText)
-            }
-        }) {
+        Button(
+            onClick = {
+                Timber.tag("LogScreen").i("[$selectedLogLevel] $selectedEvent - $selectedMessage")
+            },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .height(50.dp)
+        ) {
             Text("Log Event")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { navController.popBackStack() }) {
+        OutlinedButton(
+            onClick = { navController.popBackStack() },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .height(50.dp)
+        ) {
             Text("Go Back")
         }
     }
@@ -118,37 +134,41 @@ fun LogScreen(navController: NavController) {
 fun DropdownMenuBox(
     options: List<String>,
     selected: String,
-    onSelected: (String) -> Unit
+    onSelectedChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box {
-        OutlinedButton(
-            onClick = { expanded = true },
-            shape = MaterialTheme.shapes.extraSmall, // 👈 makes it more square
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { expanded = true }
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(selected)
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = "Dropdown arrow",
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-            }
+            Text(
+                text = selected,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+            )
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = "Dropdown",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        onSelected(option)
+                        onSelectedChange(option)
                         expanded = false
                     }
                 )
@@ -156,6 +176,7 @@ fun DropdownMenuBox(
         }
     }
 }
+
 
 @Preview
 @Composable
